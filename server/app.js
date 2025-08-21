@@ -84,6 +84,10 @@ app.use('/api/v1', authRoutes);
 app.use('/api/v1', adminRoutes);
 app.use('/api/v1', webRoutes); // Example route for users
 
+app.get('/', async (req, res) => {
+  res.send("hi")
+})
+
 // 4. Handle 404 routes
 // app.all('*', (req, res, next) => {
 //   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
