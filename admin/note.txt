@@ -1,0 +1,12 @@
+  // Dummy music data
+  // const dummyMusic = Array.from({ length: 50 }, (_, i) => ({
+  //   id: i + 1,
+  //   title: `Song ${i + 1}`,
+  //   artist: `Artist ${(i % 5) + 1}`,
+  //   album: `Album ${(i % 3) + 1}`,
+  //   genre: ['Pop', 'Rock', 'Hip Hop', 'Electronic', 'Classical'][i % 5],
+  //   duration: `${Math.floor(Math.random() * 4) + 2}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`,
+  //   uploadDate: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toLocaleDateString(),
+  //   plays: Math.floor(Math.random() * 10000),
+  //   status: i % 4 === 0 ? 'Inactive' : 'Active'
+  // }));

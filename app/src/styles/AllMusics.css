@@ -1,0 +1,98 @@
+    .category-row {
+          padding: 1.25rem 1rem;
+          width: 100%;
+          position: relative;
+        }
+
+        .row-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+        }
+
+        .row-title {
+          margin: 0;
+          font-size: 1.5rem;
+          font-weight: bold;
+        }
+
+        .see-all {
+          font-size: 0.875rem;
+          text-decoration: none;
+          color: #1DB954;
+          transition: opacity 0.2s;
+        }
+
+        .see-all:hover {
+          opacity: 0.8;
+        }
+
+        .row-content {
+          position: relative;
+        }
+
+        .swiper {
+          padding: 0 2.5rem; /* space for nav buttons */
+        }
+
+        .swiper-slide {
+          width: auto;
+          max-width: 200px;
+        }
+
+        .swiper-button-prev,
+        .swiper-button-next {
+          color: #1DB954;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 10;
+          width: 2rem;
+          height: 2rem;
+          background: rgba(0, 0, 0, 0.5);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .swiper-button-prev {
+          left: 0;
+        }
+
+        .swiper-button-next {
+          right: 0;
+        }
+
+        .swiper-button-prev::after,
+        .swiper-button-next::after {
+          font-size: 1rem;
+        }
+
+        /* Mobile styles */
+        @media (max-width: 640px) {
+          .category-row {
+            padding: 1rem 0.5rem;
+          }
+          
+          .row-title {
+            font-size: 1.25rem;
+          }
+          
+          .swiper {
+            padding: 0 1.5rem;
+          }
+          
+          .swiper-button-prev,
+          .swiper-button-next {
+            width: 1.5rem;
+            height: 1.5rem;
+          }
+        }
+
+        /* Loading and error states */
+        .loading-error {
+          padding: 2rem;
+          text-align: center;
+          color: #ffffff;
+        }

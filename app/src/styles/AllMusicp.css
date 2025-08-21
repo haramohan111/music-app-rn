@@ -1,0 +1,94 @@
+.all-music-container {
+  background-color: #121212;
+  color: #fff;
+  padding: 30px;
+  min-height: 100vh;
+}
+
+.title {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.search-barp {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 20px;
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  background-color: #1f1f1f;
+  color: #fff;
+}
+
+.music-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.music-card {
+  background-color: #1e1e1e;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  transition: background 0.3s ease;
+}
+
+.music-card:hover {
+  background-color: #292929;
+}
+
+.cover-image {
+  width: 100%;
+  height: 150px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.playlist-icon {
+  color: #1db954;
+  margin-right: 5px;
+}
+
+.play-btn {
+  background-color: #1db954;
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-content: center;
+}
+
+.play-btn:hover {
+  background-color: #1ed760;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 15px;
+}
+
+.pagination button {
+  background-color: #1db954;
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  background-color: #444;
+}

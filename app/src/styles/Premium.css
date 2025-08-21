@@ -1,0 +1,61 @@
+/* Premium.css */
+
+.premium-container {
+  background-color: #121212; /* deep black */
+  color: #ffffff;
+  padding: 3rem;
+  text-align: center;
+  border-radius: 12px;
+  max-width: 700px;
+  margin: 50px auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.premium-title {
+  font-size: 2.5rem;
+  color: #ffd700; /* gold for premium feel */
+  margin-bottom: 1rem;
+}
+
+.premium-subtitle {
+  font-size: 1.1rem;
+  color: #bbbbbb;
+  margin-bottom: 2rem;
+}
+
+.premium-benefits ul {
+  list-style: none;
+  padding: 0;
+}
+
+.premium-benefits li {
+  font-size: 1rem;
+  background: #1f1f1f;
+  margin: 0.5rem 0;
+  padding: 12px;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.premium-benefits li:hover {
+  background: #2a2a2a;
+}
+
+.premium-button {
+  background: linear-gradient(135deg, #ffb400, #ff8c00);
+  color: black;
+  border: none;
+  padding: 14px 28px;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  font-weight: bold;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.premium-button:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #ff8c00, #ffb400);
+}

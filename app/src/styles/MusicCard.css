@@ -1,0 +1,179 @@
+.music-card {
+  width: 160px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  margin: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.music-card:hover {
+  transform: scale(1.05);
+}
+
+.card-img-container {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s;
+}
+
+.play-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.music-card:hover .play-overlay {
+  opacity: 1;
+}
+
+.play-icon {
+  color: white;
+  font-size: 24px;
+}
+
+.card-info {
+  padding: 8px 0;
+  text-align: center;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-subtitle {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* for three dot and three dots model */
+/* Three-dot menu styles */
+.three-dot-menu {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  color: white;
+}
+
+.three-dot-menu:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+/* Dropdown menu styles */
+.menu-dropdown {
+  position: absolute;
+  top: 40px;
+  right: 10px;
+  background: #282828;
+  border-radius: 4px;
+  padding: 5px 0;
+  min-width: 160px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  z-index: 3;
+}
+
+.menu-item {
+  padding: 10px 20px;
+  color: white;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background: #3e3e3e;
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #282828;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  max-width: 90%;
+  z-index: 1001;
+}
+
+.modal-content h3 {
+  margin-bottom: 20px;
+  color: white;
+}
+
+.modal-options {
+  display: flex;
+  flex-direction: column;
+    overflow-y: auto; /* Shows scrollbar only when needed */
+  max-height: 300px; 
+}
+
+.modal-option {
+  padding: 10px;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  
+}
+
+.modal-option:hover {
+  background: #3e3e3e;
+}
+
+/* model close */
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0 0.5rem;
+  margin-left: 89px;
+    color: red;
+}
+
