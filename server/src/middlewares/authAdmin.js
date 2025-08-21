@@ -5,7 +5,8 @@ exports.authenticate = async (req, res, next) => {
   try {
     // 1. Get access token from cookies
     const accessToken = req.cookies.accessToken;
-    
+    console.log("Cookies from request:", req.cookies);
+
     if (!accessToken) {
       return res.status(401).json({ message: 'Authentication required' });
     }
