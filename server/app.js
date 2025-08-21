@@ -14,9 +14,10 @@ const adminRoutes = require('./src/routes/adminRoutes');
 
 // Initialize Express app
 const app = express();
-app.use(cookieParser());
 // 1. Connect to MongoDB
 connectDB();
+app.use(cookieParser());
+
 //Prevent browser caching
 app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-store');
