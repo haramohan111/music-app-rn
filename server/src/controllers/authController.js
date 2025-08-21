@@ -57,7 +57,7 @@ exports.login = async (req, res, next) => {
       sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       maxAge:  24 * 60 * 60 * 1000, // 1 day,
       path: '/',
-      ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' }),
+   
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -66,7 +66,7 @@ exports.login = async (req, res, next) => {
       sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       maxAge: 7 * 24 * 60 * 1000,
       path: '/', // 7 days
-      ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' }),
+      
     });
 
     res.status(200).json({
