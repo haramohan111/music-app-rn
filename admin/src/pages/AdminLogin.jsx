@@ -48,6 +48,7 @@ const AdminLogin = () => {
         {error && (
           <div className="error-message">
             {error}
+            {import.meta.env.VITE_API_URL}
           </div>
         )}
 
