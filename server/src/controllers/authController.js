@@ -1,7 +1,7 @@
 const Admin = require('../models/Admin');
 const jwt = require('jsonwebtoken');
 const bcrypt = require("bcrypt");
-const generateTokens  = require('../utills/generateToken');
+const generateTokens = require('../utills/generateToken');
 
 const {
   JWT_SECRET,
@@ -43,32 +43,36 @@ exports.login = async (req, res, next) => {
     }
 
 
-        // 3. Generate tokens
+    // 3. Generate tokens
     const { accessToken, refreshToken } = generateTokens(admin);
-    
+
     // 4. Store refresh token in database
     admin.refreshToken = refreshToken;
     await admin.save();
-    
+
     // 5. Set cookies
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge:  60 * 1000, // 1 minutes,
-      path: '/'
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+      maxAge: 60 * 1000, // 1 minutes,
+      path: '/',
+      ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' }),
     });
-    
+
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       maxAge: 7 * 24 * 60 * 1000,
-      path: '/' // 7 days
+      path: '/', // 7 days
+      ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' }),
     });
-    
-     res.status(200).json({ message: "Login successful", admin: { _id: admin._id, email: admin.email },
-      accessToken , status: true });
+
+    res.status(200).json({
+      message: "Login successful", admin: { _id: admin._id, email: admin.email },
+      accessToken, status: true
+    });
 
   } catch (error) {
     next(error);
@@ -85,29 +89,31 @@ exports.logout = async (req, res) => {
     //     { uid },
     //     { $set: { refreshToken: null } }
     //   );
-    
+
     // 1. Clear cookies
-   res.clearCookie('accessToken', {
+    res.clearCookie('accessToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // HTTPS only — use false in local dev
-      sameSite: 'Strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       path: '/',
+       ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' })
     });
 
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       path: '/',
+       ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' })
     });
-    
+
     // 2. Remove refresh token from database if exists
     // if (refreshToken) {
 
     //}
-    
+
     res.json({ message: 'Logged out successfully' });
-    
+
   } catch (error) {
     console.error('Logout error:', error);
     res.status(500).json({ message: 'Server error' });
@@ -115,68 +121,69 @@ exports.logout = async (req, res) => {
 };
 
 exports.verifyUser = async (req, res) => {
-    try {
-      const token = req.cookies.accessToken;
-      console.log(token);
-      if (!token) {
-        return res.status(401).json({ message: 'Not authenticated' });
-      }
-      
-      const decoded = jwt.verify(token, process.env.JWT_ACCESS_TOKEN);
-      console.log(decoded.userId,"decoded");
-      //const user = await User.find(user => user.id === decoded.userId);
-      const user = await Admin.findOne({ _id: decoded.userId });
-
-     //console.log(user,"user");
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-      
-      res.json({ admin: { _id: user._id, email: user.email,name:user.name,status:user.status } });
-    } catch (error) {
-      res.status(401).json({ message: 'Not authenticated' });
+  try {
+    const token = req.cookies.accessToken;
+    console.log(token);
+    if (!token) {
+      return res.status(401).json({ message: 'Not authenticated' });
     }
+
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_TOKEN);
+    console.log(decoded.userId, "decoded");
+    //const user = await User.find(user => user.id === decoded.userId);
+    const user = await Admin.findOne({ _id: decoded.userId });
+
+    //console.log(user,"user");
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ admin: { _id: user._id, email: user.email, name: user.name, status: user.status } });
+  } catch (error) {
+    res.status(401).json({ message: 'Not authenticated' });
+  }
 };
 
 exports.refreshToken = async (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken;
-    
+
     if (!refreshToken) {
       return res.status(401).json({ message: 'Refresh token required' });
     }
-    
+
     // 1. Verify refresh token
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN);
-    
+
     // 2. Find user in database
-    const user = await Admin.findOne({ 
+    const user = await Admin.findOne({
       _id: decoded.userId,
       refreshToken: refreshToken
     });
-    
+
     if (!user) {
       return res.status(401).json({ message: 'Invalid refresh token' });
     }
-    
+
     // 3. Generate new access token
     const accessToken = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_ACCESS_TOKEN,
       { expiresIn: '15m' }
     );
-    
+
     // 4. Set new access token cookie
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       path: '/',
-      maxAge:  60 * 1000 // 1 minutes
+       ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' }),
+      maxAge: 60 * 1000 // 1 minutes
     });
-    
+
     res.json({ accessToken });
-    
+
   } catch (error) {
     console.error('Refresh token error:', error);
     res.status(401).json({ message: 'Invalid refresh token' });
