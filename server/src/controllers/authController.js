@@ -132,7 +132,7 @@ exports.verifyUser = async (req, res) => {
         return res.status(404).json({ message: 'User not found' });
       }
       
-      res.json({ admin: { _id: user.id, email: user.email,name:user.name,status:user.status } });
+      res.json({ admin: { _id: user._id, email: user.email,name:user.name,status:user.status } });
     } catch (error) {
       res.status(401).json({ message: 'Not authenticated' });
     }
@@ -161,7 +161,7 @@ exports.refreshToken = async (req, res) => {
     
     // 3. Generate new access token
     const accessToken = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user._id, email: user.email },
       process.env.JWT_ACCESS_TOKEN,
       { expiresIn: '15m' }
     );
