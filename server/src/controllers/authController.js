@@ -96,7 +96,7 @@ exports.logout = async (req, res) => {
       secure: process.env.NODE_ENV === 'production', // HTTPS only — use false in local dev
       sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       path: '/',
-       ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' })
+     
     });
 
     res.clearCookie('refreshToken', {
@@ -104,7 +104,7 @@ exports.logout = async (req, res) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       path: '/',
-       ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' })
+      
     });
 
     // 2. Remove refresh token from database if exists
@@ -178,7 +178,6 @@ exports.refreshToken = async (req, res) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       path: '/',
-       ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' }),
       maxAge: 60 * 1000 // 1 minutes
     });
 
