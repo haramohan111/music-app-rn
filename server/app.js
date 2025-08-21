@@ -24,7 +24,7 @@ app.use((req, res, next) => {
 });
 // 2. Middlewares
 app.use(cors({
-  origin: ['http://localhost:3001','http://localhost:3002'],
+  origin: [process.env.FRONTEND_URL,process.env.ADMIN_URL],
   credentials: true,
 }));
 app.use(express.json());
