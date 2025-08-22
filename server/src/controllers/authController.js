@@ -57,7 +57,7 @@ exports.login = async (req, res, next) => {
       sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       maxAge:  24 * 60 * 60 * 1000, // 1 day,
       path: '/',
-      ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' }),
+      // ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' }),
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -66,7 +66,7 @@ exports.login = async (req, res, next) => {
       sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       maxAge: 7 * 24 * 60 * 1000,
       path: '/', // 7 days
-      ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' }),
+      // ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' }),
     });
 
     res.status(200).json({
@@ -96,7 +96,7 @@ exports.logout = async (req, res) => {
       secure: process.env.NODE_ENV === 'production', // HTTPS only — use false in local dev
       sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       path: '/',
-       ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' })
+      //  ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' })
     });
 
     res.clearCookie('refreshToken', {
@@ -104,7 +104,7 @@ exports.logout = async (req, res) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       path: '/',
-       ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' })
+      //  ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' })
     });
 
     // 2. Remove refresh token from database if exists
@@ -178,8 +178,8 @@ exports.refreshToken = async (req, res) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
       path: '/',
-       ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' }),
-      maxAge: 60 * 1000 // 1 minutes
+      //  ...(process.env.NODE_ENV === 'production' && { domain: '.vercel.app' }),
+      maxAge: 24 * 60 * 60 * 1000 // 1 minutes
     });
 
     res.json({ accessToken });
