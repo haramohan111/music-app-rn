@@ -190,7 +190,6 @@ exports.addOnlyMusicCloudanary = async (req, res) => {
     const audioFile = req.files.audioFile[0];
     const filename = path.parse(audioFile.originalname).name;
 
-    // Default metadata
     const defaultMetadata = {
       title: filename || 'Untitled Track',
       artist: 'Unknown Artist',
@@ -203,10 +202,11 @@ exports.addOnlyMusicCloudanary = async (req, res) => {
     let metadata = { ...defaultMetadata };
     let coverImage = null;
 
-    // Read tags and extract cover image if available
+    // Check if local file exists before processing
     if (fs.existsSync(audioFile.path)) {
       try {
         const fileData = fs.readFileSync(audioFile.path);
+
         const tagData = await new Promise((resolve) => {
           new jsmediatags.Reader(fileData)
             .setTagsToRead(['title', 'artist', 'album', 'genre', 'year', 'picture'])
@@ -223,26 +223,33 @@ exports.addOnlyMusicCloudanary = async (req, res) => {
           if (tagData.tags.genre) metadata.genre = tagData.tags.genre;
           if (tagData.tags.year) metadata.year = tagData.tags.year;
 
-          // Extract cover image
           if (tagData.tags.picture) {
             const { format, data } = tagData.tags.picture;
-            const ext = format.split('/')[1] || 'jpg';
             const buffer = Buffer.from(data);
 
-            // Upload to Cloudinary
-            const uploadResult = await cloudinary.uploader.upload_stream({
-              resource_type: 'image',
-              folder: 'music_covers',
-              public_id: `cover_${Date.now()}`
-            }, (error, result) => {
-              if (error) console.error('Cover upload error:', error);
-              else coverImage = result.secure_url;
-            });
+            // ✅ Upload cover image using stream and Promise
+            const uploadCover = () => {
+              return new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream({
+                  resource_type: 'image',
+                  folder: 'music_covers',
+                  public_id: `cover_${Date.now()}`
+                }, (err, result) => {
+                  if (err) return reject(err);
+                  resolve(result.secure_url);
+                });
 
-            const stream = require('stream');
-            const passthrough = new stream.PassThrough();
-            passthrough.end(buffer);
-            passthrough.pipe(uploadResult);
+                const passthrough = new stream.PassThrough();
+                passthrough.end(buffer);
+                passthrough.pipe(uploadStream);
+              });
+            };
+
+            try {
+              coverImage = await uploadCover();
+            } catch (err) {
+              console.error('Cover upload error:', err);
+            }
           }
         }
       } catch (tagError) {
@@ -250,14 +257,14 @@ exports.addOnlyMusicCloudanary = async (req, res) => {
       }
     }
 
-    // Upload audio file to Cloudinary
+    // ✅ Upload audio file
     const audioUploadResult = await cloudinary.uploader.upload(audioFile.path, {
-      resource_type: 'video', // audio is treated as video in Cloudinary
+      resource_type: 'video',
       folder: 'music_tracks',
       public_id: `${filename}_${Date.now()}`
     });
 
-    // Save to MongoDB
+    // ✅ Save to database
     const songData = new Music({
       ...metadata,
       audioFile: audioUploadResult.secure_url,
@@ -266,7 +273,7 @@ exports.addOnlyMusicCloudanary = async (req, res) => {
 
     await songData.save();
 
-    // Cleanup local file
+    // ✅ Cleanup
     fs.unlinkSync(audioFile.path);
 
     return res.status(201).json({
