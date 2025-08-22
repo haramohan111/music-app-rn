@@ -3,14 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import { parseBlob } from 'music-metadata-browser';
+import * as mm from 'music-metadata'; // ✅ use new package
+import { Buffer } from "buffer";
+import { addonlyMusicCloudanry } from '../../redux/features/music/musicSlice';
 
 import '../../styles/AddMusic.css';
-import { addonlyMusicCloudanry } from '../../redux/features/music/musicSlice';
-import { Buffer } from "buffer";
+
 window.Buffer = Buffer;
 
-
+// Cloudinary constants
 const CLOUD_NAME = 'dccleecro';
 const AUDIO_PRESET = 'audio_upload';
 const AUDIO_FOLDER = 'music_tracks';
@@ -40,35 +41,20 @@ const Only = () => {
 
   const [loading, setLoading] = useState(false);
 
-  // Helpers
-  const getDurationFromFile = (file) =>
-    new Promise((resolve) => {
-      const url = URL.createObjectURL(file);
-      const audioEl = document.createElement('audio');
-      audioEl.src = url;
-      audioEl.addEventListener('loadedmetadata', () => {
-        const dur = isFinite(audioEl.duration) ? Math.round(audioEl.duration) : 0;
-        URL.revokeObjectURL(url);
-        resolve(dur);
-      });
-      audioEl.addEventListener('error', () => {
-        URL.revokeObjectURL(url);
-        resolve(0);
-      });
-    });
-
+  // Convert picture from tags to File
   const pictureToFile = (picture) => {
     if (!picture) return null;
     const blob = new Blob([picture.data], { type: picture.format || 'image/jpeg' });
     return new File([blob], 'cover-from-tags.jpg', { type: blob.type });
   };
 
-  //  Use ESM-friendly parser
+  // Extract tags with music-metadata
   const extractTags = async (file) => {
     try {
-      const md = await parseBlob(file);
-      const common = md.common || {};
-      // common.picture is an array; take the first
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const metadata = await mm.parseBuffer(buffer, file.type);
+
+      const common = metadata.common || {};
       const picture = Array.isArray(common.picture) && common.picture.length ? common.picture[0] : null;
 
       return {
@@ -77,23 +63,23 @@ const Only = () => {
         album: common.album || '',
         genre: Array.isArray(common.genre) ? common.genre[0] : (common.genre || ''),
         year: common.year ? String(common.year) : '',
-        track: common.track && common.track.no ? String(common.track.no) : '',
+        track: common.track?.no ? String(common.track.no) : '',
+        durationSeconds: metadata.format.duration ? Math.round(metadata.format.duration) : 0,
         picture,
       };
-    } catch(error) {
-        console.error("extracttags",error)
-      return { title: '', artist: '', album: '', genre: '', year: '', track: '', picture: null };
+    } catch (error) {
+      console.error("Metadata extraction failed:", error);
+      return { title: '', artist: '', album: '', genre: '', year: '', track: '', durationSeconds: 0, picture: null };
     }
   };
 
-
-  // Cloudinary uploads
+  // Upload audio file to Cloudinary
   const uploadAudioToCloudinary = async (file) => {
     const form = new FormData();
     form.append('file', file);
     form.append('folder', AUDIO_FOLDER);
     form.append('upload_preset', AUDIO_PRESET);
-    const endpoint = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`; // audio -> video endpoint
+    const endpoint = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`;
     const { data } = await axios.post(endpoint, form);
     return {
       url: data.secure_url,
@@ -102,6 +88,7 @@ const Only = () => {
     };
   };
 
+  // Upload cover image to Cloudinary
   const uploadCoverToCloudinary = async (file) => {
     if (!file) return { url: '', publicId: '', originalName: '' };
     const form = new FormData();
@@ -117,6 +104,7 @@ const Only = () => {
     };
   };
 
+  // Handle file selection
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0] || null;
     setAudioFile(file);
@@ -129,9 +117,9 @@ const Only = () => {
       return;
     }
 
-    const durationSeconds = await getDurationFromFile(file);
+    // Extract metadata
     const tags = await extractTags(file);
-console.log("tags",tags)
+
     const embeddedCoverFile = pictureToFile(tags.picture);
     setCoverFile(embeddedCoverFile);
     setCoverPreview(embeddedCoverFile ? URL.createObjectURL(embeddedCoverFile) : null);
@@ -143,10 +131,11 @@ console.log("tags",tags)
       genre: tags.genre || '',
       year: tags.year || '',
       track: tags.track || '',
-      durationSeconds,
+      durationSeconds: tags.durationSeconds || 0,
     });
   };
 
+  // Handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!audioFile) {
@@ -189,7 +178,6 @@ console.log("tags",tags)
         setCoverPreview(null);
         setMeta({ title: '', artist: '', album: '', genre: '', year: '', track: '', durationSeconds: 0 });
         if (fileInputRef.current) fileInputRef.current.value = '';
-        // navigate('/admin/music/manage-music');
       } else {
         throw new Error(res.payload || 'Failed to add music');
       }
@@ -224,12 +212,13 @@ console.log("tags",tags)
             )}
           </div>
 
-          {/* Optional quick preview of extracted tags */}
+          {/* Optional preview */}
           {(meta.title || meta.artist || coverPreview) && (
             <div style={{ marginTop: 12 }}>
               <div><b>Title:</b> {meta.title || '—'}</div>
               <div><b>Artist:</b> {meta.artist || '—'}</div>
               <div><b>Album:</b> {meta.album || '—'}</div>
+              <div><b>Duration:</b> {meta.durationSeconds ? `${meta.durationSeconds}s` : '—'}</div>
               {coverPreview && (
                 <img
                   src={coverPreview}
