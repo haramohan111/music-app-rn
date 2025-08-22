@@ -40,6 +40,18 @@ export const onlyMusic = createAsyncThunk(
   }
 );
 
+export const addonlyMusicCloudanry = createAsyncThunk(
+  'music/addonlyMusicCloudanry',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post(`/add-only-music-cloudanary`, payload);
+      return data.music;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to add music');
+    }
+  }
+);
+
 const musicSlice = createSlice({
   name: 'music',
   initialState: {
@@ -85,7 +97,19 @@ const musicSlice = createSlice({
       .addCase(onlyMusic.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+            .addCase(addonlyMusicCloudanry.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addonlyMusicCloudanry.fulfilled, (state, action) => {
+        state.loading = false;
+        state.addedMusic  = action.payload;
+      })
+      .addCase(addonlyMusicCloudanry.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
   }
 });
 

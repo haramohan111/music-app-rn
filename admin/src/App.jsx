@@ -12,11 +12,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { checkAuth } from './redux/features/auth/authService';
 import { useEffect } from 'react';
 import EditMusic from './pages/music/EditMusic';
-import OnlyMusic from './pages/music/OnlyMusic';
+// import OnlyMusic from './pages/music/OnlyMusic';
 import PasswordGenerator from './components/PasswordGenerator';
 import { refreshToken, verifyUser } from './redux/features/auth/authSlice';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import OnlyMusicCloudnary from './pages/music/OnlyMusicCloudnary';
+
 
 
 export default function App() {
@@ -36,7 +38,8 @@ export default function App() {
             <Route path="user/add-user" element={<AddUser />} />
             <Route path="user/manage-users" element={<ManageUsers />} />
             <Route path="music/add-music" element={<AddMusic />} />
-            <Route path="music/only-music" element={<OnlyMusic />} />
+            <Route path="music/only-music" element={<OnlyMusicCloudnary />} />
+         
             <Route path="music/manage-music" element={<ManageMusic />} />
             <Route path="music/edit-music/:id" element={<EditMusic />} />
             <Route index element={<Navigate to="dashboard" replace />} />
