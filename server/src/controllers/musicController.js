@@ -4,6 +4,8 @@ const path = require('path');
 const Music = require('../models/Music');
 const fs = require('fs');
 const jsmediatags = require('jsmediatags');
+const cloudinary = require('../config/cloudinaryConfig');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 
 // Configure storage
@@ -87,7 +89,99 @@ console.log("nnnn",req.files.coverImage[0].path);
   }
 };
 
-exports.addOnlyMusic = async (req, res) => {
+//upload music in server folder its working
+// exports.addOnlyMusic = async (req, res) => {
+//   try {
+//     if (!req.files?.audioFile) {
+//       return res.status(400).json({ error: 'No file uploaded' });
+//     }
+
+//     const audioFile = req.files.audioFile[0];
+//     const filename = path.parse(audioFile.originalname).name;
+
+//     // Set default metadata that will always work
+//     const defaultMetadata = {
+//       title: filename || 'Untitled Track',
+//       artist: 'Unknown Artist', // Required field
+//       album: '',
+//       genre: '',
+//       year: '',
+//       duration: 0
+//     };
+
+//     let metadata = {...defaultMetadata};
+//     let coverImage = null;
+
+//     // Try to read tags if file exists
+//     if (fs.existsSync(audioFile.path)) {
+//       try {
+//         const fileData = fs.readFileSync(audioFile.path);
+//         const tagData = await new Promise((resolve) => {
+//           new jsmediatags.Reader(fileData)
+//             .setTagsToRead(['title', 'artist', 'album', 'genre', 'year', 'picture'])
+//             .read({
+//               onSuccess: resolve,
+//               onError: () => resolve(null) // Silently fail
+//             });
+//         });
+
+//         if (tagData?.tags) {
+//           // Only update fields that exist in tags
+//           if (tagData.tags.title) metadata.title = tagData.tags.title;
+//           if (tagData.tags.artist) metadata.artist = tagData.tags.artist;
+//           if (tagData.tags.album) metadata.album = tagData.tags.album;
+//           if (tagData.tags.genre) metadata.genre = tagData.tags.genre;
+//           if (tagData.tags.year) metadata.year = tagData.tags.year;
+
+//           // Handle cover image
+//           if (tagData.tags.picture) {
+//             const { format, data } = tagData.tags.picture;
+//             const ext = format.split('/')[1] || 'jpg';
+//             const coverFilename = `coverImage-${Date.now()}.${ext}`;
+//             console.log("coverFilename",coverFilename);
+//             const coverPath = path.join(__dirname, '../../uploads/covers', coverFilename);
+            
+//             // Ensure directory exists
+//             if (!fs.existsSync(path.dirname(coverPath))) {
+//               fs.mkdirSync(path.dirname(coverPath), { recursive: true });
+//             }
+            
+//             fs.writeFileSync(coverPath, Buffer.from(data));
+//             coverImage = `${coverFilename}`;
+//           }
+//         }
+//       } catch (tagError) {
+//         console.log('Metadata extraction failed, using defaults');
+//       }
+//     }
+
+//     // Save to database
+//     const songData = new Music({
+//       ...metadata,
+//       audioFile: `${audioFile.filename}`,
+//       coverImage
+//     });
+
+//     await songData.save();
+
+//     return res.status(201).json({
+//       success: true,
+//       message: 'File uploaded successfully',
+//       song: songData
+//     });
+
+//   } catch (error) {
+//     console.error('Upload failed:', error);
+//     return res.status(500).json({ 
+//       success: false,
+//       error: 'Upload processing failed',
+//       details: process.env.NODE_ENV === 'development' ? error.message : undefined
+//     });
+//   }
+// };
+
+// Cloudinary storage config for audio
+exports.addOnlyMusicCloudanary = async (req, res) => {
   try {
     if (!req.files?.audioFile) {
       return res.status(400).json({ error: 'No file uploaded' });
@@ -96,20 +190,20 @@ exports.addOnlyMusic = async (req, res) => {
     const audioFile = req.files.audioFile[0];
     const filename = path.parse(audioFile.originalname).name;
 
-    // Set default metadata that will always work
+    // Default metadata
     const defaultMetadata = {
       title: filename || 'Untitled Track',
-      artist: 'Unknown Artist', // Required field
+      artist: 'Unknown Artist',
       album: '',
       genre: '',
       year: '',
       duration: 0
     };
 
-    let metadata = {...defaultMetadata};
+    let metadata = { ...defaultMetadata };
     let coverImage = null;
 
-    // Try to read tags if file exists
+    // Read tags and extract cover image if available
     if (fs.existsSync(audioFile.path)) {
       try {
         const fileData = fs.readFileSync(audioFile.path);
@@ -118,48 +212,62 @@ exports.addOnlyMusic = async (req, res) => {
             .setTagsToRead(['title', 'artist', 'album', 'genre', 'year', 'picture'])
             .read({
               onSuccess: resolve,
-              onError: () => resolve(null) // Silently fail
+              onError: () => resolve(null)
             });
         });
 
         if (tagData?.tags) {
-          // Only update fields that exist in tags
           if (tagData.tags.title) metadata.title = tagData.tags.title;
           if (tagData.tags.artist) metadata.artist = tagData.tags.artist;
           if (tagData.tags.album) metadata.album = tagData.tags.album;
           if (tagData.tags.genre) metadata.genre = tagData.tags.genre;
           if (tagData.tags.year) metadata.year = tagData.tags.year;
 
-          // Handle cover image
+          // Extract cover image
           if (tagData.tags.picture) {
             const { format, data } = tagData.tags.picture;
             const ext = format.split('/')[1] || 'jpg';
-            const coverFilename = `coverImage-${Date.now()}.${ext}`;
-            console.log("coverFilename",coverFilename);
-            const coverPath = path.join(__dirname, '../../uploads/covers', coverFilename);
-            
-            // Ensure directory exists
-            if (!fs.existsSync(path.dirname(coverPath))) {
-              fs.mkdirSync(path.dirname(coverPath), { recursive: true });
-            }
-            
-            fs.writeFileSync(coverPath, Buffer.from(data));
-            coverImage = `${coverFilename}`;
+            const buffer = Buffer.from(data);
+
+            // Upload to Cloudinary
+            const uploadResult = await cloudinary.uploader.upload_stream({
+              resource_type: 'image',
+              folder: 'music_covers',
+              public_id: `cover_${Date.now()}`
+            }, (error, result) => {
+              if (error) console.error('Cover upload error:', error);
+              else coverImage = result.secure_url;
+            });
+
+            const stream = require('stream');
+            const passthrough = new stream.PassThrough();
+            passthrough.end(buffer);
+            passthrough.pipe(uploadResult);
           }
         }
       } catch (tagError) {
-        console.log('Metadata extraction failed, using defaults');
+        console.log('Metadata extraction failed:', tagError.message);
       }
     }
 
-    // Save to database
+    // Upload audio file to Cloudinary
+    const audioUploadResult = await cloudinary.uploader.upload(audioFile.path, {
+      resource_type: 'video', // audio is treated as video in Cloudinary
+      folder: 'music_tracks',
+      public_id: `${filename}_${Date.now()}`
+    });
+
+    // Save to MongoDB
     const songData = new Music({
       ...metadata,
-      audioFile: `${audioFile.filename}`,
-      coverImage
+      audioFile: audioUploadResult.secure_url,
+      coverImage: coverImage || null
     });
 
     await songData.save();
+
+    // Cleanup local file
+    fs.unlinkSync(audioFile.path);
 
     return res.status(201).json({
       success: true,
@@ -169,13 +277,14 @@ exports.addOnlyMusic = async (req, res) => {
 
   } catch (error) {
     console.error('Upload failed:', error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
       error: 'Upload processing failed',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
+
 
 exports.getAllMusic = async (req, res) => {
   try {
