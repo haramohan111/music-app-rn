@@ -68,7 +68,7 @@ export default function CategoryNewRow({title,tracks, isLoading, error}) {
                     subtitle={item?.artist || item?.description}
                     cover={item?.coverUrl}
                     audioFile={item?.audioUrl}
-                    onPlay={item?.audioFile}
+                    onPlay={item?.audioUrl}
                   />
                 </SwiperSlide>
               ))}
