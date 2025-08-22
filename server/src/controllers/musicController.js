@@ -273,7 +273,7 @@ exports.addOnlyMusicCloudanary = async (req, res) => {
 
     await songData.save();
 
-    // ✅ Cleanup
+    //  Cleanup
     fs.unlinkSync(audioFile.path);
 
     return res.status(201).json({
@@ -287,7 +287,7 @@ exports.addOnlyMusicCloudanary = async (req, res) => {
     return res.status(500).json({
       success: false,
       error: 'Upload processing failed',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'production' ? error.message : undefined
     });
   }
 };
