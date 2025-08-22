@@ -6,7 +6,7 @@ export const fetchAllMusic = createAsyncThunk(
   'music/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/allmusic', { withCredentials: true });
+      const response = await api.get('/allmusic');
       return response.data;
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -19,7 +19,7 @@ export const addToFavorites = createAsyncThunk(
   async (trackId, { rejectWithValue, getState }) => {
     try {
 
-      const response = await api.post(`/api/favorites/${trackId}`, {},{ withCredentials: true});
+      const response = await api.post(`/api/favorites/${trackId}`);
       return response.data;
     } catch (err) {
       return rejectWithValue(err.response.data);
