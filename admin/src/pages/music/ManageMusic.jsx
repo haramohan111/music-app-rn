@@ -261,7 +261,8 @@ const ManageMusic = () => {
                     {/* <td>{music?.duration}</td> */}
                     <td>
                       <img
-                        src={`http://localhost:5000/covers/${music?.coverImage}`}
+                        // src={`http://localhost:5000/covers/${music?.coverImage}`}
+                        src={`${music?.coverImage}`}
                         alt={music?.title}
                         height={50}
                         width={50}
@@ -270,7 +271,8 @@ const ManageMusic = () => {
                     </td>
                     <td>
                       <audio controls>
-                        <source src={`http://localhost:5000/audio/${music?.audioFile}`} type="audio/mpeg" />
+                        {/* <source src={`http://localhost:5000/audio/${music?.audioFile}`} type="audio/mpeg" /> */}
+                         <source src={`${music?.audioFile}`} type="audio/mpeg" />
                         Your browser does not support the audio element.
                       </audio>
 

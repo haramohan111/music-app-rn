@@ -27,7 +27,7 @@ export const onlyMusic = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await api.post(`/add-only-music`, formData, {
+      const response = await api.post(`/add-only-music-cloudanary`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
