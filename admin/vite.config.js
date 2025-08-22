@@ -6,7 +6,6 @@ import react from '@vitejs/plugin-react'
 //   plugins: [react()],
 // })
 
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 
