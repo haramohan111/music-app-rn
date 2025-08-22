@@ -4,7 +4,7 @@ const path = require('path');
 const Music = require('../models/Music');
 const fs = require('fs');
 const jsmediatags = require('jsmediatags');
-const cloudinary = require('../config/cloudinaryconfig.js');
+const cloudinary = require('../config/cloudinaryConfig');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 
