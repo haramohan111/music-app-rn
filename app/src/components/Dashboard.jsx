@@ -23,7 +23,7 @@ useEffect(() => {
 
 
   const { tracks, isLoading,error} = useSelector((state) => state.music);
-
+console.log(tracks)
   const { aspstatus,perror } = useSelector((state) => state.playlists);
   useEffect(() => {
     if (aspstatus === 'succeeded') {
