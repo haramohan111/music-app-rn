@@ -32,7 +32,6 @@ const multer = require('multer');
 //   fileFilter,
 // });
 
-const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
 
 
