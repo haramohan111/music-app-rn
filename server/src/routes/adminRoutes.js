@@ -17,7 +17,7 @@ router.post('/add-music',authenticate , musicController.upload.fields([{ name: '
 //     { name: 'coverImage', maxCount: 1 }]),musicController.addOnlyMusic);
 
 //cloudanary upload
-router.post('/add-only-music-cloudanary',authenticate, upload.fields([{ name: 'audioFile', maxCount: 1 }]), musicController.addOnlyMusicCloudanary);
+router.post('/add-only-music-cloudanary',authenticate, musicController.addOnlyMusicCloudanary);
 
 router.get('/music-list',authenticate , musicController.getAllMusic);
 

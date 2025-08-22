@@ -1,44 +1,29 @@
-// models/Music.js
 const mongoose = require('mongoose');
 
-const musicSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    trim: true
+const musicSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true, trim: true },
+    artist: { type: String, required: true, trim: true },
+    album: { type: String, default: '', trim: true },
+    genre: { type: String, default: '', trim: true },
+
+    status: {
+      type: String,
+      enum: ['active', 'inactive'],
+      default: 'active',
+    },
+
+    // Cloudinary audio
+    audioUrl: { type: String, required: true },
+    audioPublicId: { type: String }, // optional but handy (for deletes)
+    audioOriginalName: { type: String }, // like "audioFile-xxxxx.mp3"
+
+    // Cloudinary cover
+    coverUrl: { type: String, default: '' },
+    coverPublicId: { type: String },
+    coverOriginalName: { type: String },
   },
-  artist: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  album: {
-    type: String,
-    trim: true
-  },
-  genre: {
-    type: String,
-    trim: true
-  },
-  releaseDate: {
-    type: Date
-  },
-  status: {
-    type: String,
-    enum: ['active', 'inactive'],
-    default: 'active'
-  },
-  audioFile: {
-    type: String,
-    required: true
-  },
-  coverImage: {
-    type: String
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+  { timestamps: true }
+);
 
 module.exports = mongoose.model('Music', musicSchema);

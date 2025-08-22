@@ -180,123 +180,164 @@ console.log("nnnn",req.files.coverImage[0].path);
 //   }
 // };
 
-// Cloudinary storage config for audio
-exports.addOnlyMusicCloudanary = async (req, res) => {
-  try {
-    const audioFile = req.files?.audioFile?.[0];
-    if (!audioFile || !audioFile.buffer) {
-      return res.status(400).json({ error: 'No file uploaded' });
+// Cloudinary storage config for audio its working in local not is sever
+// exports.addOnlyMusicCloudanary = async (req, res) => {
+//   try {
+//     const audioFile = req.files?.audioFile?.[0];
+//     if (!audioFile || !audioFile.buffer) {
+//       return res.status(400).json({ error: 'No file uploaded' });
+//     }
+
+//     const filename = path.parse(audioFile.originalname).name;
+
+//     const defaultMetadata = {
+//       title: filename || 'Untitled Track',
+//       artist: 'Unknown Artist',
+//       album: '',
+//       genre: '',
+//       year: '',
+//       duration: 0
+//     };
+
+//     let metadata = { ...defaultMetadata };
+//     let coverImage = null;
+
+//     // Read metadata from buffer
+//     try {
+//       const tagData = await new Promise((resolve) => {
+//         new jsmediatags.Reader(audioFile.buffer)
+//           .setTagsToRead(['title', 'artist', 'album', 'genre', 'year', 'picture'])
+//           .read({
+//             onSuccess: resolve,
+//             onError: () => resolve(null)
+//           });
+//       });
+
+//       if (tagData?.tags) {
+//         if (tagData.tags.title) metadata.title = tagData.tags.title;
+//         if (tagData.tags.artist) metadata.artist = tagData.tags.artist;
+//         if (tagData.tags.album) metadata.album = tagData.tags.album;
+//         if (tagData.tags.genre) metadata.genre = tagData.tags.genre;
+//         if (tagData.tags.year) metadata.year = tagData.tags.year;
+
+//         // Upload cover image if present
+//         if (tagData.tags.picture) {
+//           const { data, format } = tagData.tags.picture;
+//           const buffer = Buffer.from(data);
+
+//           const coverUpload = () => {
+//             return new Promise((resolve, reject) => {
+//               const uploadStream = cloudinary.uploader.upload_stream({
+//                 resource_type: 'image',
+//                 folder: 'music_covers',
+//                 public_id: `cover_${Date.now()}`
+//               }, (err, result) => {
+//                 if (err) return reject(err);
+//                 resolve(result.secure_url);
+//               });
+
+//               const passthrough = new stream.PassThrough();
+//               passthrough.end(buffer);
+//               passthrough.pipe(uploadStream);
+//             });
+//           };
+
+//           try {
+//             coverImage = await coverUpload();
+//           } catch (err) {
+//             console.error('Cover upload failed:', err);
+//           }
+//         }
+//       }
+//     } catch (err) {
+//       console.warn('Tag parsing failed:', err.message);
+//     }
+
+//     // Upload audio file to Cloudinary from memory
+//     const uploadAudio = () => {
+//       return new Promise((resolve, reject) => {
+//         const uploadStream = cloudinary.uploader.upload_stream({
+//           resource_type: 'video',
+//           folder: 'music_tracks',
+//           public_id: `${filename}_${Date.now()}`
+//         }, (err, result) => {
+//           if (err) return reject(err);
+//           resolve(result);
+//         });
+
+//         const passthrough = new stream.PassThrough();
+//         passthrough.end(audioFile.buffer);
+//         passthrough.pipe(uploadStream);
+//       });
+//     };
+
+//     const audioUploadResult = await uploadAudio();
+
+//     // Save to MongoDB
+//     const songData = new Music({
+//       ...metadata,
+//       audioFile: audioUploadResult.secure_url,
+//       coverImage: coverImage || null
+//     });
+
+//     await songData.save();
+
+//     return res.status(201).json({
+//       success: true,
+//       message: 'File uploaded successfully',
+//       song: songData
+//     });
+
+//   } catch (error) {
+//     console.error('Upload failed:', error);
+//     return res.status(500).json({
+//       success: false,
+//       error: 'Upload processing failed',
+//       details: process.env.NODE_ENV !== 'production' ? error.message : undefined
+//     });
+//   }
+// };
+
+exports.addOnlyMusicCloudanary =async (req,res)=>{
+   try {
+    const {
+      title,
+      artist,
+      album,
+      genre,
+      status,             // 'active' | 'inactive'
+      audioUrl,
+      audioPublicId,
+      audioOriginalName,
+      coverUrl,
+      coverPublicId,
+      coverOriginalName,
+    } = req.body;
+
+    if (!title || !artist || !audioUrl) {
+      return res.status(400).json({ message: 'title, artist, audioUrl are required' });
     }
 
-    const filename = path.parse(audioFile.originalname).name;
-
-    const defaultMetadata = {
-      title: filename || 'Untitled Track',
-      artist: 'Unknown Artist',
-      album: '',
-      genre: '',
-      year: '',
-      duration: 0
-    };
-
-    let metadata = { ...defaultMetadata };
-    let coverImage = null;
-
-    // Read metadata from buffer
-    try {
-      const tagData = await new Promise((resolve) => {
-        new jsmediatags.Reader(audioFile.buffer)
-          .setTagsToRead(['title', 'artist', 'album', 'genre', 'year', 'picture'])
-          .read({
-            onSuccess: resolve,
-            onError: () => resolve(null)
-          });
-      });
-
-      if (tagData?.tags) {
-        if (tagData.tags.title) metadata.title = tagData.tags.title;
-        if (tagData.tags.artist) metadata.artist = tagData.tags.artist;
-        if (tagData.tags.album) metadata.album = tagData.tags.album;
-        if (tagData.tags.genre) metadata.genre = tagData.tags.genre;
-        if (tagData.tags.year) metadata.year = tagData.tags.year;
-
-        // Upload cover image if present
-        if (tagData.tags.picture) {
-          const { data, format } = tagData.tags.picture;
-          const buffer = Buffer.from(data);
-
-          const coverUpload = () => {
-            return new Promise((resolve, reject) => {
-              const uploadStream = cloudinary.uploader.upload_stream({
-                resource_type: 'image',
-                folder: 'music_covers',
-                public_id: `cover_${Date.now()}`
-              }, (err, result) => {
-                if (err) return reject(err);
-                resolve(result.secure_url);
-              });
-
-              const passthrough = new stream.PassThrough();
-              passthrough.end(buffer);
-              passthrough.pipe(uploadStream);
-            });
-          };
-
-          try {
-            coverImage = await coverUpload();
-          } catch (err) {
-            console.error('Cover upload failed:', err);
-          }
-        }
-      }
-    } catch (err) {
-      console.warn('Tag parsing failed:', err.message);
-    }
-
-    // Upload audio file to Cloudinary from memory
-    const uploadAudio = () => {
-      return new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream({
-          resource_type: 'video',
-          folder: 'music_tracks',
-          public_id: `${filename}_${Date.now()}`
-        }, (err, result) => {
-          if (err) return reject(err);
-          resolve(result);
-        });
-
-        const passthrough = new stream.PassThrough();
-        passthrough.end(audioFile.buffer);
-        passthrough.pipe(uploadStream);
-      });
-    };
-
-    const audioUploadResult = await uploadAudio();
-
-    // Save to MongoDB
-    const songData = new Music({
-      ...metadata,
-      audioFile: audioUploadResult.secure_url,
-      coverImage: coverImage || null
+    const doc = await Music.create({
+      title,
+      artist,
+      album: album || '',
+      genre: genre || '',
+      status: status === 'inactive' ? 'inactive' : 'active', // default safe-guard
+      audioUrl,
+      audioPublicId: audioPublicId || '',
+      audioOriginalName: audioOriginalName || '',
+      coverUrl: coverUrl || '',
+      coverPublicId: coverPublicId || '',
+      coverOriginalName: coverOriginalName || '',
     });
 
-    await songData.save();
-
-    return res.status(201).json({
-      success: true,
-      message: 'File uploaded successfully',
-      song: songData
-    });
-
-  } catch (error) {
-    console.error('Upload failed:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Upload processing failed',
-      details: process.env.NODE_ENV !== 'production' ? error.message : undefined
-    });
+    res.status(201).json({ success: true, music: doc });
+  } catch (err) {
+    console.error('Add Music Error:', err);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
-};
+}
 
 
 exports.getAllMusic = async (req, res) => {
