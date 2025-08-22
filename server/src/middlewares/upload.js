@@ -1,11 +1,17 @@
-// middlewares/upload.js
-const multer = require('multer');
+const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
 
-// Store files in local `/uploads` directory before Cloudinary
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, './uploads/audio'); // store temporarily before uploading
+    const dir = './uploads/audio';
+    
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    cb(null, dir);
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
