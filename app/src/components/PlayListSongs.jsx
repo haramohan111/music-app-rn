@@ -61,7 +61,7 @@ const PlayListSongs = () => {
   // };
 
 
- // ✅ put it here
+ // put it here
   // const handlePlay = (songsToPlay) => {
   //   if (!songsToPlay || songsToPlay.length === 0) return;
 
@@ -88,7 +88,7 @@ const PlayListSongs = () => {
         <img
           src={
             playlistSongs?.data?.length > 0
-              ? `http://localhost:5000/covers/${playlistSongs?.data[0]?.songs?.coverImage}`
+              ? `${playlistSongs?.data[0]?.songs?.coverImage}`
               : "https://source.unsplash.com/random/300x300/?music,album"
           }
           alt="Album Cover"
@@ -123,7 +123,7 @@ const PlayListSongs = () => {
             <tbody>
               {playlistSongs?.data.map((song, index) => (
                 <tr key={index}>
-                  <td><img src={`http://localhost:5000/covers/${song?.songs?.coverImage}`} onClick={() => handlePlay(song?.songs?.title, song?.songs?.artist, song?.songs?.coverImage, song?.songs?.audioFile)} height={50} width={50} /></td>
+                  <td><img src={`${song?.songs?.coverImage}`} onClick={() => handlePlay(song?.songs?.title, song?.songs?.artist, song?.songs?.coverImage, song?.songs?.audioFile)} height={50} width={50} /></td>
                   <td>{song?.songs?.title}</td>
                   <td>{song?.songs?.artist}</td>
                   <td>

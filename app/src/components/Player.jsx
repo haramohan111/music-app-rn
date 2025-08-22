@@ -22,7 +22,7 @@ export default function Player({ currentSong }) {
   const audioRef = useRef(null)
   const [isReady, setIsReady] = useState(false)
   const [coverUrl, setCoverUrl] = useState("");
-
+console.log(currentSong)
   // Initialize audio element
   useEffect(() => {
     audioRef.current = new Audio()
@@ -77,9 +77,9 @@ export default function Player({ currentSong }) {
       // Verify the audio source exists
       // const response = await fetch(`http://localhost:5000/api/v1/audio/${currentSong.audioSrc}`)
       // if (!response.ok) throw new Error('Audio file not found')
-      await api.get(`/audio/${currentSong.audioSrc}`, { responseType: 'blob' });
+      // await api.get(`/audio/${currentSong.audioSrc}`, { responseType: 'blob' });
       // Load the audio
-      audioRef.current.src = `http://localhost:5000/api/v1/audio/${currentSong.audioSrc}`
+      audioRef.current.src = `${currentSong.audioSrc}`
       await new Promise((resolve, reject) => {
         audioRef.current.oncanplay = resolve
         audioRef.current.onerror = reject
@@ -172,7 +172,7 @@ export default function Player({ currentSong }) {
       }
 
       // Simulate await logic (fetch, check file exists, etc.)
-      const url = `http://localhost:5000/covers/${currentSong?.cover}`;
+      const url = `${currentSong?.cover}`;
 
       // Optional: check if the image exists before setting
       try {

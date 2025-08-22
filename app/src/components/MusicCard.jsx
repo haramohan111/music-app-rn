@@ -73,7 +73,7 @@ export default function MusicCard({ title, musicId, subtitle, cover, audioFile, 
       onClick={handlePlay}
     >
       <div className="card-img">
-        <img src={`http://localhost:5000/covers/${cover}`} alt={title} className="card-img" />
+        <img src={`${cover}`} alt={title} className="card-img" />
 
         {/* Three-dot menu button */}
         {isLoggedIn ?
